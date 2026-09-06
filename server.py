@@ -301,7 +301,6 @@ def get_docker_images_disk_usage_bytes():
             multiplier = UNIT_MAP.get(unit.upper(), 1)
             usage = int(float(number) * multiplier)
             MetricsHandler.docker_image_disk_usage_bytes.set(usage)
-            MetricsHandler.push(PUSHGATEWAY_URL)
 
         return None
     except Exception:
@@ -310,7 +309,6 @@ def get_docker_images_disk_usage_bytes():
 
 def handle_deploy(repo_cfg: RepoConfig, payload: dict, is_dev: bool):
     MetricsHandler.last_push_timestamp.labels(repo=repo_cfg.name).set(time.time())
-    MetricsHandler.push(PUSHGATEWAY_URL)
 
     commit = payload.get("head_commit") or {}
     status = DeploymentStatus(
@@ -681,12 +679,12 @@ def smee_listen():
         # 1. Establish a synchronous connection
         ws = websocket.create_connection(SMEE2_URL, header={"X-API-Key": SMEE2_API_KEY})
         logger.info(f"Connected to smee at {SMEE2_URL}")
+        MetricsHandler.websocket_connection.set(1)
         
         # 2. Replace 'async for' with a blocking while loop
         while True:
             message = ws.recv()
             MetricsHandler.last_smee_request_timestamp.set(time.time())
-            MetricsHandler.push(PUSHGATEWAY_URL)
 
             data = json.loads(message)
             # we used to get it like
@@ -725,6 +723,7 @@ def smee_listen():
     finally:
         if 'ws' in locals():
             ws.close()
+        MetricsHandler.websocket_connection.set(0)
     return result
 
 
