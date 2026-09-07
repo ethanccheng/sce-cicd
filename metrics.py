@@ -21,9 +21,9 @@ class Metrics(enum.Enum):
         "Total disk usage of all Docker images in bytes",
         prometheus_client.Gauge,
     )
-    WEBSOCKET_CONNECTION = (
-        "websocket_connection",
-        "1 for connection, else 0",
+    IS_WEBSOCKET_CONNECTED = (
+        "is_websocket_connected",
+        "1 for yes, 0 for no",
         prometheus_client.Gauge,
     )
 

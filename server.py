@@ -679,7 +679,7 @@ def smee_listen():
         # 1. Establish a synchronous connection
         ws = websocket.create_connection(SMEE2_URL, header={"X-API-Key": SMEE2_API_KEY})
         logger.info(f"Connected to smee at {SMEE2_URL}")
-        MetricsHandler.websocket_connection.set(1)
+        MetricsHandler.is_websocket_connected.set(1)
         
         # 2. Replace 'async for' with a blocking while loop
         while True:
@@ -723,7 +723,7 @@ def smee_listen():
     finally:
         if 'ws' in locals():
             ws.close()
-        MetricsHandler.websocket_connection.set(0)
+        MetricsHandler.is_websocket_connected.set(0)
     return result
 
 
